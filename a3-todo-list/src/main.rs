@@ -1,71 +1,61 @@
-// Ligne 1: Définition d'une structure Todo
+// import de chrono
+use chrono::{DateTime, Utc};
+
+
+// Ligne 1: Définition d'une structure Todo ameliorée
 struct Todo {
+    id: u32,
     title: String,
+    description: String,
     completed: bool,
+    created_at: DateTime<Utc>,
+    completed_at: Option<DateTime<Utc>>,
 }
 
 // bloc impl pour les méthodes associées à la structure Todo
 impl Todo {
-    // constructeur new
-    fn new(title: String) -> Todo {
+    // constructeur new avec plus de champs
+    fn new(id: u32, title: String, description: String) -> Todo {
         Todo {
+            id: id,
             title: title,
-            completed: false, 
+            description: description,
+            completed: false,
+            created_at: Utc::now(),
+            completed_at: None,
         }
     }
 
-    // méthode pour marquer la tâche comme complétée
+    // méthode pour marquer la tâche comme complétée ameliorée
     fn complete(&mut self) {
-        self.completed = true;
+        if !self.completed {
+            self.completed = true;
+            self.completed_at = Some(Utc::now());
+        }
     }
 
-    // méthode pour afficher les détails de la tâche
-    fn display(&self, id: usize) {
+    // méthode pour afficher les détails de la tâche ameliorée
+    fn display(&self) {
         let status = if self.completed { "✓" } else { "o"};
-        println!("{} [{}] {}", status, id, self.title);
+        println!("\n {} [{}] {}", status, self.id, self.title);
+        println!("   Description: {}", self.description);
+        println!("   Créée le: {}", self.created_at.format("%d/%m/%Y %H:%M:%S"));
     }
 }
 
 fn main() {
-    /* 
-    // utilisation du constructeur pour créer une nouvelle tâche
-    let mut todo = Todo::new(String::from("apprendre rust"));
 
-        println!("Tache avant: {}, completée: {}", todo.title, todo.completed);
 
-    // appel de la méthode
+    // tester la nouvelle structure Todo
+    let mut todo = Todo::new(
+        1,
+        String::from("Apprendre Rust"),
+        String::from("Suivre le tuto complet"),
+    );
+
+    todo.display();
     todo.complete();
-
-    println!("Tache après: {}, completée: {}", todo.title, todo.completed);
-
-   */
-
-    // creation d'un vecteur todos
-    let mut todos: Vec<Todo> = Vec::new();
-
-    // ajout de tâches au vecteur
-    todos.push(Todo::new(String::from("apprendre rust")));
-    todos.push(Todo::new(String::from("creer un todo list")));
-
-    // affichage de toutes les tâches
-    println!("\n === Liste des tâches ===");
-
-    for (i, todo) in todos.iter_mut().enumerate() {
-        todo.display(i + 1);
-    }
-
-    // marquer la première tâche comme complétée
-    if let Some(todo) = todos.get_mut(0) {
-        todo.complete();
-    }
-
-    // reaffichage après modification
-
-        println!("\n === Liste des tâches - Modifiée ===");
-
-    for (i, todo) in todos.iter_mut().enumerate() {
-        todo.display(i + 1);
-    }
+    todo.display();
 
 }
 
