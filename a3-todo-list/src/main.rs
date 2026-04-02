@@ -1,8 +1,11 @@
-// import de chrono
+// import de chrono 
+use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
 
 // Ligne 1: Définition d'une structure Todo ameliorée
+
+#[derive(Debug, Serialize, Deserialize)]
 struct Todo {
     id: u32,
     title: String,
@@ -15,7 +18,7 @@ struct Todo {
 // bloc impl pour les méthodes associées à la structure Todo
 impl Todo {
     // constructeur new avec plus de champs
-    fn new(id: u32, title: String, description: String) -> Todo {
+    fn new(id: u32, title: String, description: String) -> Self {
         Todo {
             id: id,
             title: title,
@@ -40,22 +43,99 @@ impl Todo {
         println!("\n {} [{}] {}", status, self.id, self.title);
         println!("   Description: {}", self.description);
         println!("   Créée le: {}", self.created_at.format("%d/%m/%Y %H:%M:%S"));
+    
+        if let Some(completed_at) = self.completed_at {
+            println!("  Complété le: {}", completed_at.format("%d/%m/%Y %H:%M"));
+        }
     }
 }
+
+// Lignes 52-58: Structure TodoList
+#[derive(Debug, Serialize, Deserialize)]
+struct TodoList {
+    todos: Vec<Todo>,
+    next_id: u32,
+}
+
+
+impl TodoList {
+    // Lignes 61-65: Constructeur
+    fn new() -> Self {
+        TodoList {
+            todos: Vec::new(),
+            next_id: 1,
+        }
+    }
+    
+    // Lignes 68-74: Méthode add
+    fn add(&mut self, title: String, description: String) {
+        let todo = Todo::new(self.next_id, title, description);
+        self.todos.push(todo);
+        self.next_id += 1;
+        println!("Todo ajouté avec succès !");
+    }
+    
+    // Lignes 77-87: Méthode list
+    fn list(&self) {
+        if self.todos.is_empty() {
+            println!("\nAucune tâche pour le moment !");
+            return;
+        }
+        
+        println!("\n=== VOS TÂCHES ===");
+        for todo in &self.todos {
+            todo.display();
+        }
+    }
+    
+    // Lignes 90-103: Méthode complete
+    fn complete(&mut self, id: u32) -> bool {
+        if let Some(todo) = self.todos.iter_mut().find(|todo| todo.id == id) {
+            if !todo.completed {
+                todo.complete();
+                println!("Tâche {} complétée !", id);
+                true
+            } else {
+                println!("Cette tâche est déjà complétée !");
+                false
+            }
+        } else {
+            println!("Tâche avec l'ID {} non trouvée !", id);
+            false
+        }
+    }
+    
+    // Lignes 106-115: Méthode delete
+    #[allow(dead_code)]
+    fn delete(&mut self, id: u32) -> bool {
+        let initial_len = self.todos.len();
+        self.todos.retain(|todo| todo.id != id);
+        
+        if self.todos.len() < initial_len {
+            println!("Tâche {} supprimée !", id);
+            true
+        } else {
+            println!("Tâche avec l'ID {} non trouvée !", id);
+            false
+        }
+    }
+}
+
 
 fn main() {
 
 
-    // tester la nouvelle structure Todo
-    let mut todo = Todo::new(
-        1,
-        String::from("Apprendre Rust"),
-        String::from("Suivre le tuto complet"),
-    );
-
-    todo.display();
-    todo.complete();
-    todo.display();
+    // Lignes 122-123: Test
+    let mut todo_list = TodoList::new();
+    
+    todo_list.add(String::from("Apprendre Rust"), String::from("Suivre le tutoriel"));
+    todo_list.add(String::from("Créer une app"), String::from("Développer la todo list"));
+    
+    todo_list.list();
+    
+    todo_list.complete(1);
+    
+    todo_list.list();
 
 }
 
