@@ -1,4 +1,6 @@
 // import de chrono 
+use std::fs;
+use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
@@ -119,6 +121,34 @@ impl TodoList {
             false
         }
     }
+
+
+    // Méthode save_to_file
+    
+    #[allow(dead_code)]
+    fn save_to_file(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+        // Ligne: Convertir en JSON
+        let json = serde_json::to_string_pretty(self)?;
+        // Ligne: Écrire dans le fichier
+        fs::write(path, json)?;
+        Ok(())
+    }
+
+    #[allow(dead_code)]
+    fn load_from_file(path: &PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
+        // Ligne: Vérifier si le fichier existe
+        if !path.exists() {
+            return Ok(TodoList::new());
+        }
+        
+        // Ligne: Lire le fichier
+        let json = fs::read_to_string(path)?;
+        // Ligne: Désérialiser
+        let todo_list: TodoList = serde_json::from_str(&json)?;
+        Ok(todo_list)
+    }
+
+
 }
 
 
