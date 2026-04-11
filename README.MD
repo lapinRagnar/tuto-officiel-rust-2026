@@ -23,6 +23,7 @@ https://slint.dev/
 
 ## Les meilleures antisèches en un coup d'œil
 Nom / Lien	Description	Public cible
+
 https://cheats.rs/
 
 Une ressource en une page très dense. 
